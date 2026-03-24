@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>コドモアッテ | Kodomo-Atte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                pink: "#FF9EAA",
+                mint: "#B0EACD",
+              },
+            },
+            fontFamily: {
+              sans: [
+                "ui-sans-serif",
+                "system-ui",
+                "Hiragino Sans",
+                "Hiragino Kaku Gothic ProN",
+                "Noto Sans JP",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50/40 to-emerald-50 text-stone-700 antialiased"
+  >
+    <div
+      class="pointer-events-none fixed -left-32 top-24 h-72 w-72 rounded-full bg-brand-pink/20 blur-3xl"
+      aria-hidden="true"
+    ></div>
+    <div
+      class="pointer-events-none fixed -right-24 bottom-16 h-80 w-80 rounded-full bg-brand-mint/30 blur-3xl"
+      aria-hidden="true"
+    ></div>
+
+    <main class="relative mx-auto flex min-h-screen max-w-lg flex-col px-6 py-12 sm:max-w-xl">
+      <header class="mb-10 text-center">
+        <div
+          class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/80 shadow-lg shadow-brand-pink/15 ring-2 ring-brand-pink/25"
+        >
+          <svg
+            class="h-10 w-10 text-brand-pink"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            aria-hidden="true"
+          >
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+            />
+          </svg>
+        </div>
+        <p class="mb-1 text-sm font-medium tracking-wide text-stone-500">
+          Kodomo-Atte
+        </p>
+        <h1 class="text-3xl font-bold tracking-tight text-stone-800 sm:text-4xl">
+          コドモアッテ
+        </h1>
+        <p class="mt-4 text-lg leading-relaxed text-stone-600 sm:text-xl">
+          子どもと向き合う時間に、ゆとりを。
+        </p>
+      </header>
+
+      <nav
+        class="flex flex-1 flex-col justify-center gap-4"
+        aria-label="メインメニュー"
+      >
+        <a
+          href="#"
+          class="group flex min-h-[5.5rem] items-center justify-center rounded-3xl border border-white/60 bg-white/75 px-6 py-6 text-center text-lg font-semibold text-stone-800 shadow-md shadow-brand-pink/10 backdrop-blur transition hover:-translate-y-0.5 hover:bg-white hover:shadow-lg hover:shadow-brand-pink/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-pink"
+        >
+          <span
+            class="rounded-2xl bg-brand-pink/15 px-4 py-2 text-brand-pink transition group-hover:bg-brand-pink/25"
+            >園児管理</span
+          >
+        </a>
+        <a
+          href="#"
+          class="group flex min-h-[5.5rem] items-center justify-center rounded-3xl border border-white/60 bg-white/75 px-6 py-6 text-center text-lg font-semibold text-stone-800 shadow-md shadow-brand-mint/15 backdrop-blur transition hover:-translate-y-0.5 hover:bg-white hover:shadow-lg hover:shadow-brand-mint/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-mint"
+        >
+          <span
+            class="rounded-2xl bg-brand-mint/25 px-4 py-2 text-emerald-800/90 transition group-hover:bg-brand-mint/40"
+            >欠席連絡</span
+          >
+        </a>
+        <a
+          href="#"
+          class="group flex min-h-[5.5rem] items-center justify-center rounded-3xl border border-white/60 bg-white/75 px-6 py-6 text-center text-lg font-semibold text-stone-800 shadow-md shadow-rose-200/40 backdrop-blur transition hover:-translate-y-0.5 hover:bg-white hover:shadow-lg hover:shadow-rose-200/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-pink"
+        >
+          <span
+            class="rounded-2xl bg-rose-50 px-4 py-2 text-rose-700 transition group-hover:bg-rose-100"
+            >お知らせ</span
+          >
+        </a>
+      </nav>
+
+      <footer class="mt-12 text-center text-xs text-stone-400">
+        © {% now "Y" %} Kodomo-Atte
+      </footer>
+    </main>
+  </body>
+</html>
