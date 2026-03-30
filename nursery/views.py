@@ -8,14 +8,14 @@ from .models import Attendance, Children
 
 
 def top_view(request):
-    today = timezone.localdate()
-    absent_attendances = Attendance.objects.filter(date=today, is_absent=True).select_related(
+    today = timezone.now().date()
+    absent_children = Attendance.objects.filter(date=today, is_absent=True).select_related(
         "child"
     )
     return render(
         request,
         "nursery/top.html",
-        {"absent_attendances": absent_attendances, "today": today},
+        {"absent_children": absent_children, "today": today},
     )
 
 
@@ -34,6 +34,18 @@ def child_list_view(request):
         request,
         "nursery/child_list.html",
         {"rows": rows, "today": today},
+    )
+
+
+def absent_list_partial(request):
+    today = timezone.now().date()
+    absent_children = Attendance.objects.filter(date=today, is_absent=True).select_related(
+        "child"
+    )
+    return render(
+        request,
+        "nursery/partials/absent_list_partial.html",
+        {"absent_children": absent_children},
     )
 
 
