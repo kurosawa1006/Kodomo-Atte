@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}コドモアッテ | Kodomo-Atte{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                pink: "#FF9EAA",
+                mint: "#B0EACD",
+              },
+            },
+            fontFamily: {
+              sans: [
+                "ui-sans-serif",
+                "system-ui",
+                "Hiragino Sans",
+                "Hiragino Kaku Gothic ProN",
+                "Noto Sans JP",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-stone-700 antialiased font-sans">
+    <div class="flex min-h-screen">
+      <!-- サイドメニュー -->
+      <aside
+        class="flex w-64 flex-col border-r border-sky-100 bg-sky-50/90 px-4 py-6 shadow-sm"
+      >
+        <div class="mb-8 flex items-center gap-3 px-2">
+          <div
+            class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/80 shadow-sm shadow-sky-200"
+          >
+            <span class="text-lg font-bold text-sky-500">KA</span>
+          </div>
+          <div>
+            <p class="text-xs font-semibold tracking-wide text-sky-500">
+              Kodomo-Atte
+            </p>
+            <p class="text-sm font-bold text-slate-700">こども園サポート</p>
+          </div>
+        </div>
+
+        <nav class="space-y-1 text-sm" aria-label="メインメニュー">
+          <a
+            href="{% url 'top' %}"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-slate-700 hover:bg-white hover:text-sky-600"
+          >
+            <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-sky-100 text-xs font-bold text-sky-600"
+              >T</span
+            >
+            <span class="font-medium">TOP</span>
+          </a>
+          <a
+            href="{% url 'child_list' %}"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-slate-700 hover:bg-white hover:text-sky-600"
+          >
+            <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-sky-100 text-xs font-bold text-sky-600"
+              >👶</span
+            >
+            <span class="font-medium">園児一覧</span>
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-slate-700 hover:bg-white hover:text-sky-600"
+          >
+            <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-sky-100 text-xs font-bold text-sky-600"
+              >✔</span
+            >
+            <span class="font-medium">出席確認</span>
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-slate-700 hover:bg-white hover:text-sky-600"
+          >
+            <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-sky-100 text-xs font-bold text-sky-600"
+              >✉</span
+            >
+            <span class="font-medium">お知らせ</span>
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-slate-700 hover:bg-white hover:text-sky-600"
+          >
+            <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-sky-100 text-xs font-bold text-sky-600"
+              >⚙</span
+            >
+            <span class="font-medium">設定</span>
+          </a>
+        </nav>
+
+        <div class="mt-auto px-2 pt-6 text-xs text-slate-400">
+          <p>© {% now "Y" %} Kodomo-Atte</p>
+        </div>
+      </aside>
+
+      <!-- メインエリア -->
+      <div class="flex-1">
+        <main class="mx-auto flex min-h-screen max-w-5xl flex-col px-8 py-8">
+          {% block content %}{% endblock %}
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
+

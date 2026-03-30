@@ -1,0 +1,93 @@
+{% extends "nursery/base.html" %}
+
+{% block title %}園児一覧 | コドモアッテ{% endblock %}
+
+{% block content %}
+  <header class="mb-6 border-b border-slate-100 pb-4">
+    <p class="text-xs font-medium tracking-wide text-sky-500">Children</p>
+    <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-800">園児一覧</h1>
+    <p class="mt-2 text-sm text-slate-500">
+      欠席状態は「欠席」ボタンで切り替えできます。
+    </p>
+  </header>
+
+  <section class="rounded-2xl border border-slate-100 bg-white/90 shadow-sm">
+    <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+      <h2 class="text-base font-semibold text-slate-800">一覧</h2>
+      <span class="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
+        {{ rows|length }}名
+      </span>
+    </div>
+
+    {% if rows %}
+      <ul class="divide-y divide-slate-100">
+        {% for row in rows %}
+          {% with child=row.child att=row.attendance %}
+          <li
+            class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 {% if att %}opacity-45 grayscale{% endif %}"
+          >
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold text-slate-900">
+                {{ child.name }}
+                <span class="ml-2 text-xs font-medium text-slate-500">（{{ child.class_id }}）</span>
+                {% if att and att.reason %}
+                  <span class="ml-2 text-xs font-medium text-slate-500">理由：{{ att.reason }}</span>
+                {% endif %}
+              </p>
+              <p class="mt-1 text-xs text-slate-500">
+                かな：{{ child.kana }} / 誕生日：{{ child.birthday|date:"Y-m-d" }} / 性別：{{ child.get_gender_display }}
+              </p>
+            </div>
+
+            <form
+              method="post"
+              action="{% url 'toggle_attendance' child.id %}"
+              class="attendance-form"
+              data-is-absent="{% if att %}1{% else %}0{% endif %}"
+            >
+              {% csrf_token %}
+              <input type="hidden" name="reason" value="" />
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400
+                {% if att %}
+                  bg-slate-200 text-slate-700 hover:bg-slate-300
+                {% else %}
+                  bg-rose-100 text-rose-700 hover:bg-rose-200
+                {% endif %}"
+              >
+                欠席
+              </button>
+            </form>
+          </li>
+          {% endwith %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="px-5 py-10 text-center text-sm text-slate-500">
+        現在、登録されている園児はいません
+      </div>
+    {% endif %}
+  </section>
+
+  <script>
+    (function () {
+      const forms = document.querySelectorAll("form.attendance-form");
+      for (const form of forms) {
+        form.addEventListener("submit", function (e) {
+          const isAbsent = form.dataset.isAbsent === "1";
+          if (isAbsent) return; // 欠席→出席へ戻す時は理由不要
+
+          const reason = window.prompt("欠席理由を入力してください", "発熱");
+          if (reason === null) {
+            e.preventDefault();
+            return;
+          }
+          const input = form.querySelector('input[name="reason"]');
+          if (input) input.value = reason;
+        });
+      }
+    })();
+  </script>
+{% endblock %}
+
