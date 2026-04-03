@@ -4,7 +4,25 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
+from .forms import ChildRegisterForm
 from .models import Attendance, Children
+
+
+def _build_child_list_context():
+    children_list = Children.objects.all()
+    today = timezone.localdate()
+    absent_today = (
+        Attendance.objects.filter(date=today, is_absent=True)
+        .select_related("child")
+        .only("id", "child_id", "reason")
+    )
+    absent_by_child_id = {a.child_id: a for a in absent_today}
+    rows = [{"child": c, "attendance": absent_by_child_id.get(c.id)} for c in children_list]
+
+    return {
+        "rows": rows,
+        "today": today,
+    }
 
 
 def top_view(request):
@@ -20,21 +38,27 @@ def top_view(request):
 
 
 def child_list_view(request):
-    children_list = Children.objects.all()
-    today = timezone.localdate()
-    absent_today = (
-        Attendance.objects.filter(date=today, is_absent=True)
-        .select_related("child")
-        .only("id", "child_id", "reason")
-    )
-    absent_by_child_id = {a.child_id: a for a in absent_today}
-
-    rows = [{"child": c, "attendance": absent_by_child_id.get(c.id)} for c in children_list]
+    context = _build_child_list_context()
+    context["register_form"] = ChildRegisterForm()
     return render(
         request,
         "nursery/child_list.html",
-        {"rows": rows, "today": today},
+        context,
     )
+
+
+def child_register_view(request):
+    if request.method == "POST":
+        form = ChildRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("child_list"))
+    else:
+        form = ChildRegisterForm()
+
+    context = _build_child_list_context()
+    context["register_form"] = form
+    return render(request, "nursery/child_list.html", context)
 
 
 def absent_list_partial(request):
