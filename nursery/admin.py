@@ -20,6 +20,6 @@ class ChildrenAdmin(admin.ModelAdmin):
 
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):
-    list_display = ("date", "child", "is_absent", "reason")
-    list_filter = ("date", "is_absent")
+    list_display = ("date", "child", "attendance_status", "reason")
+    list_filter = ("date", "attendance_status")
     search_fields = ("child__name", "child__kana", "child__class_id", "reason")

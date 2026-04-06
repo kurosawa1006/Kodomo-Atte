@@ -43,7 +43,15 @@
                 {{ child.name }}
                 <span class="ml-2 text-xs font-medium text-slate-500">（{{ child.class_id }}）</span>
                 {% if att and att.reason %}
-                  <span class="ml-2 text-xs font-medium text-slate-500">理由：{{ att.reason }}</span>
+                  <span class="ml-2 text-xs font-medium text-slate-500">
+                    {% if att.attendance_status == 1 %}
+                      遅刻：{{ att.reason }}
+                    {% elif att.attendance_status == 2 %}
+                      早退：{{ att.reason }}
+                    {% else %}
+                      欠席：{{ att.reason }}
+                    {% endif %}
+                  </span>
                 {% endif %}
               </p>
               <p class="mt-1 text-xs text-slate-500">
@@ -51,26 +59,76 @@
               </p>
             </div>
 
-            <form
-              method="post"
-              action="{% url 'toggle_attendance' child.id %}"
-              class="attendance-form"
-              data-is-absent="{% if att %}1{% else %}0{% endif %}"
-            >
-              {% csrf_token %}
-              <input type="hidden" name="reason" value="" />
-              <button
-                type="submit"
-                class="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400
-                {% if att %}
-                  bg-slate-200 text-slate-700 hover:bg-slate-300
-                {% else %}
-                  bg-rose-100 text-rose-700 hover:bg-rose-200
-                {% endif %}"
+            <div class="flex flex-wrap items-center gap-2">
+              <form
+                method="post"
+                action="{% url 'toggle_attendance' child.id %}"
+                class="attendance-form"
+                data-attendance-status="late"
+                data-attendance-active="{% if att and att.attendance_status == 1 %}1{% else %}0{% endif %}"
               >
-                欠席
-              </button>
-            </form>
+                {% csrf_token %}
+                <input type="hidden" name="attendance_status" value="late" />
+                <input type="hidden" name="reason" value="" />
+                <button
+                  type="submit"
+                  class="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400
+                  {% if att and att.attendance_status == 1 %}
+                    bg-slate-200 text-slate-700 hover:bg-slate-300
+                  {% else %}
+                    bg-amber-100 text-amber-800 hover:bg-amber-200
+                  {% endif %}"
+                >
+                  遅刻
+                </button>
+              </form>
+
+              <form
+                method="post"
+                action="{% url 'toggle_attendance' child.id %}"
+                class="attendance-form"
+                data-attendance-status="early_leave"
+                data-attendance-active="{% if att and att.attendance_status == 2 %}1{% else %}0{% endif %}"
+              >
+                {% csrf_token %}
+                <input type="hidden" name="attendance_status" value="early_leave" />
+                <input type="hidden" name="reason" value="" />
+                <button
+                  type="submit"
+                  class="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400
+                  {% if att and att.attendance_status == 2 %}
+                    bg-slate-200 text-slate-700 hover:bg-slate-300
+                  {% else %}
+                    bg-violet-100 text-violet-700 hover:bg-violet-200
+                  {% endif %}"
+                >
+                  早退
+                </button>
+              </form>
+
+              <form
+                method="post"
+                action="{% url 'toggle_attendance' child.id %}"
+                class="attendance-form"
+                data-attendance-status="absent"
+                data-attendance-active="{% if att and att.attendance_status == 3 %}1{% else %}0{% endif %}"
+              >
+                {% csrf_token %}
+                <input type="hidden" name="attendance_status" value="absent" />
+                <input type="hidden" name="reason" value="" />
+                <button
+                  type="submit"
+                  class="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400
+                  {% if att and att.attendance_status == 3 %}
+                    bg-slate-200 text-slate-700 hover:bg-slate-300
+                  {% else %}
+                    bg-rose-100 text-rose-700 hover:bg-rose-200
+                  {% endif %}"
+                >
+                  欠席
+                </button>
+              </form>
+            </div>
           </li>
           {% endwith %}
         {% endfor %}
@@ -234,10 +292,24 @@
       const forms = document.querySelectorAll("form.attendance-form");
       for (const form of forms) {
         form.addEventListener("submit", function (e) {
-          const isAbsent = form.dataset.isAbsent === "1";
-          if (isAbsent) return; // 欠席→出席へ戻す時は理由不要
+          const isActive = form.dataset.attendanceActive === "1";
+          if (isActive) return; // 取り消し時は理由不要
 
-          const reason = window.prompt("欠席理由を入力してください", "発熱");
+          const status = form.dataset.attendanceStatus;
+          const promptMap = {
+            absent: "欠席理由を入力してください",
+            late: "遅刻理由を入力してください",
+            early_leave: "早退理由を入力してください",
+          };
+          const placeholderMap = {
+            absent: "発熱",
+            late: "遅延",
+            early_leave: "用事",
+          };
+          const reason = window.prompt(
+            promptMap[status] || "理由を入力してください",
+            placeholderMap[status] || "理由"
+          );
           if (reason === null) {
             e.preventDefault();
             return;

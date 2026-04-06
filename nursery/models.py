@@ -28,7 +28,18 @@ class Children(models.Model):
 class Attendance(models.Model):
     child = models.ForeignKey(Children, on_delete=models.CASCADE, related_name="attendances")
     date = models.DateField("日付", default=timezone.now)
-    is_absent = models.BooleanField("欠席", default=True)
+    class AttendanceStatus(models.IntegerChoices):
+        LATE = 1, "遅刻"
+        EARLY_LEAVE = 2, "早退"
+        ABSENT = 3, "欠席"
+
+    # null は「出席（通常）」を表す
+    attendance_status = models.IntegerField(
+        "出欠状況",
+        choices=AttendanceStatus.choices,
+        null=True,
+        blank=True,
+    )
     reason = models.CharField("欠席理由", max_length=255, blank=True, default="")
 
     class Meta:
