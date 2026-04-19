@@ -1,17 +1,35 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: mysql:8.4
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: kodomo_atte
+      MYSQL_DATABASE: kodomo_atte
+      MYSQL_USER: kodomo
+      MYSQL_PASSWORD: kodomo
+      MYSQL_ROOT_PASSWORD: kodomo_root_dev
+    ports:
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
+    command:
+      - mysqld
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d kodomo_atte"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "127.0.0.1",
+          "-u",
+          "root",
+          "-pkodomo_root_dev",
+        ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 15
+      start_period: 40s
 
   web:
     build:
@@ -28,7 +46,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/kodomo_atte
+      DATABASE_URL: mysql://kodomo:kodomo@db:3306/kodomo_atte
       SECRET_KEY: django-insecure-dev-only-change-in-production
       DEBUG: "True"
       ALLOWED_HOSTS: localhost,127.0.0.1,web,[::1],0.0.0.0
@@ -37,4 +55,4 @@ services:
         condition: service_healthy
 
 volumes:
-  postgres_data:
+  mysql_data:

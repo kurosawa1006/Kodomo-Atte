@@ -18,6 +18,8 @@ DEBUG = env.bool("DEBUG", default=True)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1", "web"])
 
+# 例: mysql://USER:PASSWORD@HOST:PORT/NAME
+# Docker Compose 利用時は compose の DATABASE_URL と揃える
 _default_sqlite = BASE_DIR / "db.sqlite3"
 DATABASES = {
     "default": env.db(
@@ -25,6 +27,10 @@ DATABASES = {
         default=f"sqlite:///{_default_sqlite.as_posix()}",
     )
 }
+_db = DATABASES["default"]
+if _db["ENGINE"] == "django.db.backends.mysql":
+    _db.setdefault("OPTIONS", {})
+    _db["OPTIONS"].setdefault("charset", "utf8mb4")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
