@@ -11,6 +11,11 @@ urlpatterns = [
     ),
     path("children/", views.child_list_view, name="child_list"),
     path(
+        "children/register/",
+        views.child_register_view,
+        name="child_register",
+    ),
+    path(
         "children/<int:child_id>/toggle-attendance/",
         views.toggle_attendance,
         name="toggle_attendance",
