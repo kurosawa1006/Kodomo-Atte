@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 
-from .models import Children
+from .models import Children, Facility
 
 
 class ChildRegisterForm(ModelForm):
@@ -12,7 +12,7 @@ class ChildRegisterForm(ModelForm):
             "kana",
             "birthday",
             "gender",
-            "facility_id",
+            "facility",
             "class_id",
             "sub_class_id",
         ]
@@ -38,7 +38,7 @@ class ChildRegisterForm(ModelForm):
                     "class": "w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm shadow-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400",
                 }
             ),
-            "facility_id": forms.TextInput(
+            "facility": forms.Select(
                 attrs={
                     "class": "w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm shadow-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400",
                 }
@@ -59,6 +59,11 @@ class ChildRegisterForm(ModelForm):
         super().__init__(*args, **kwargs)
 
         # モデルのデフォルト値を、画面表示時にも入れて入力負担を下げる
-        self.fields["facility_id"].initial = self.fields["facility_id"].initial or "1"
+        facilities = Facility.objects.filter(is_active=True).order_by("name", "id")
+        self.fields["facility"].queryset = facilities
+        if not self.fields["facility"].initial:
+            self.fields["facility"].initial = (
+                Facility.objects.filter(pk="1", is_active=True).first() or facilities.first()
+            )
         self.fields["class_id"].initial = self.fields["class_id"].initial or "1"
 

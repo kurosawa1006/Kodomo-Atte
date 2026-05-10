@@ -233,11 +233,11 @@
         <div class="flex items-center gap-3">
           <label
             class="w-20 flex-shrink-0 text-sm font-semibold text-slate-700 whitespace-nowrap"
-            for="{{ register_form.facility_id.id_for_label }}"
+            for="{{ register_form.facility.id_for_label }}"
             >施設ID</label
           >
-          <div class="flex-1">{{ register_form.facility_id }}</div>
-          {% for error in register_form.facility_id.errors %}
+          <div class="flex-1">{{ register_form.facility }}</div>
+          {% for error in register_form.facility.errors %}
             <p class="mt-1 text-xs text-rose-600">{{ error }}</p>
           {% endfor %}
         </div>
