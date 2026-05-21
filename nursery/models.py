@@ -9,6 +9,7 @@ class Facility(models.Model):
     phone_number = models.CharField("電話番号", max_length=30)
     capacity = models.PositiveIntegerField("定員")
     is_active = models.BooleanField("有効", default=True)
+    is_deleted = models.BooleanField("削除フラグ", default=False)
     created_at = models.DateTimeField("作成日時", auto_now_add=True)
     updated_at = models.DateTimeField("更新日時", auto_now=True)
 
@@ -21,8 +22,64 @@ class Facility(models.Model):
         return self.name
 
 
+class Class(models.Model):
+    facility = models.ForeignKey(
+        Facility,
+        on_delete=models.PROTECT,
+        verbose_name="施設ID",
+        related_name="classes",
+    )
+    name = models.CharField("クラス名", max_length=100)
+    description = models.TextField("説明", blank=True, default="")
+    is_deleted = models.BooleanField("削除フラグ", default=False)
+    created_at = models.DateTimeField("作成日時", auto_now_add=True)
+    updated_at = models.DateTimeField("更新日時", auto_now=True)
+
+    class Meta:
+        verbose_name = "クラス"
+        verbose_name_plural = "クラス"
+        db_table = "class"
+        ordering = ["facility_id", "name", "id"]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class SubClass(models.Model):
+    facility = models.ForeignKey(
+        Facility,
+        on_delete=models.PROTECT,
+        verbose_name="施設ID",
+        related_name="sub_classes",
+    )
+    nursery_class = models.ForeignKey(
+        Class,
+        on_delete=models.PROTECT,
+        verbose_name="クラスID",
+        related_name="sub_classes",
+        db_column="class_id",
+    )
+    name = models.CharField("サブクラス名", max_length=100)
+    description = models.TextField("説明", blank=True, default="")
+    is_deleted = models.BooleanField("削除フラグ", default=False)
+    created_at = models.DateTimeField("作成日時", auto_now_add=True)
+    updated_at = models.DateTimeField("更新日時", auto_now=True)
+
+    class Meta:
+        verbose_name = "サブクラス"
+        verbose_name_plural = "サブクラス"
+        db_table = "sub_class"
+        ordering = ["facility_id", "nursery_class_id", "name", "id"]
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class StaffRole(models.Model):
     name = models.CharField("役職名", max_length=100)
+    is_deleted = models.BooleanField("削除フラグ", default=False)
+    created_at = models.DateTimeField("作成日時", auto_now_add=True)
+    updated_at = models.DateTimeField("更新日時", auto_now=True)
 
     class Meta:
         verbose_name = "スタッフロール"
@@ -51,6 +108,8 @@ class Parent(models.Model):
     start_date = models.DateField("開始日", null=True, blank=True)
     end_date = models.DateField("終了日", null=True, blank=True)
     is_deleted = models.BooleanField("削除フラグ", default=False)
+    created_at = models.DateTimeField("作成日時", auto_now_add=True)
+    updated_at = models.DateTimeField("更新日時", auto_now=True)
 
     class Meta:
         verbose_name = "保護者"
@@ -88,6 +147,8 @@ class Staff(models.Model):
     start_date = models.DateField("開始日", null=True, blank=True)
     end_date = models.DateField("終了日", null=True, blank=True)
     is_deleted = models.BooleanField("削除フラグ", default=False)
+    created_at = models.DateTimeField("作成日時", auto_now_add=True)
+    updated_at = models.DateTimeField("更新日時", auto_now=True)
 
     class Meta:
         verbose_name = "スタッフ"
@@ -116,19 +177,38 @@ class Children(models.Model):
         null=True,
         blank=True,
     )
-    class_id = models.CharField("クラスID", max_length=50, default="1")
-    sub_class_id = models.CharField("サブクラスID", max_length=50, null=True, blank=True)
+    nursery_class = models.ForeignKey(
+        Class,
+        on_delete=models.PROTECT,
+        verbose_name="クラス",
+        related_name="children",
+        db_column="class_id",
+        null=True,
+        blank=True,
+    )
+    sub_class = models.ForeignKey(
+        SubClass,
+        on_delete=models.PROTECT,
+        verbose_name="サブクラス",
+        related_name="children",
+        db_column="sub_class_id",
+        null=True,
+        blank=True,
+    )
     start_date = models.DateField("開始日", null=True, blank=True)
     end_date = models.DateField("終了日", null=True, blank=True)
     is_deleted = models.BooleanField("削除フラグ", default=False)
+    created_at = models.DateTimeField("作成日時", auto_now_add=True)
+    updated_at = models.DateTimeField("更新日時", auto_now=True)
 
     class Meta:
         verbose_name = "園児"
         verbose_name_plural = "園児"
-        ordering = ["class_id", "kana", "name"]
+        ordering = ["nursery_class_id", "kana", "name"]
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.class_id})"
+        class_label = self.nursery_class.name if self.nursery_class_id else "-"
+        return f"{self.name} ({class_label})"
 
 
 class Attendance(models.Model):
@@ -147,6 +227,9 @@ class Attendance(models.Model):
         blank=True,
     )
     reason = models.CharField("欠席理由", max_length=255, blank=True, default="")
+    is_deleted = models.BooleanField("削除フラグ", default=False)
+    created_at = models.DateTimeField("作成日時", auto_now_add=True)
+    updated_at = models.DateTimeField("更新日時", auto_now=True)
 
     class Meta:
         verbose_name = "出席"
@@ -154,7 +237,7 @@ class Attendance(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["child", "date"], name="uniq_attendance_child_date"),
         ]
-        ordering = ["-date", "child__class_id", "child__kana", "child__name"]
+        ordering = ["-date", "child__nursery_class_id", "child__kana", "child__name"]
 
 
 class ParentChildRelationship(models.Model):
@@ -172,7 +255,9 @@ class ParentChildRelationship(models.Model):
     )
     relationship_type = models.CharField("続柄", max_length=50)
     is_main_contact = models.BooleanField("主連絡先", default=False)
+    is_deleted = models.BooleanField("削除フラグ", default=False)
     created_at = models.DateTimeField("作成日時", auto_now_add=True)
+    updated_at = models.DateTimeField("更新日時", auto_now=True)
 
     class Meta:
         verbose_name = "保護者-園児リレーション"

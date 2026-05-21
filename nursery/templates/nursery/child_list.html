@@ -41,7 +41,7 @@
             <div class="min-w-0">
               <p class="truncate text-sm font-semibold text-slate-900">
                 {{ child.name }}
-                <span class="ml-2 text-xs font-medium text-slate-500">（{{ child.class_id }}）</span>
+                <span class="ml-2 text-xs font-medium text-slate-500">（{{ child.nursery_class|default:"-" }}）</span>
                 {% if att and att.reason %}
                   <span class="ml-2 text-xs font-medium text-slate-500">
                     {% if att.attendance_status == 1 %}
@@ -245,11 +245,11 @@
         <div class="flex items-center gap-3">
           <label
             class="w-20 flex-shrink-0 text-sm font-semibold text-slate-700 whitespace-nowrap"
-            for="{{ register_form.class_id.id_for_label }}"
-            >クラスID</label
+            for="{{ register_form.nursery_class.id_for_label }}"
+            >クラス</label
           >
-          <div class="flex-1">{{ register_form.class_id }}</div>
-          {% for error in register_form.class_id.errors %}
+          <div class="flex-1">{{ register_form.nursery_class }}</div>
+          {% for error in register_form.nursery_class.errors %}
             <p class="mt-1 text-xs text-rose-600">{{ error }}</p>
           {% endfor %}
         </div>
@@ -257,11 +257,11 @@
         <div class="flex items-center gap-3">
           <label
             class="w-20 flex-shrink-0 text-sm font-semibold text-slate-700 whitespace-nowrap"
-            for="{{ register_form.sub_class_id.id_for_label }}"
-            >サブID</label
+            for="{{ register_form.sub_class.id_for_label }}"
+            >サブクラス</label
           >
-          <div class="flex-1">{{ register_form.sub_class_id }}</div>
-          {% for error in register_form.sub_class_id.errors %}
+          <div class="flex-1">{{ register_form.sub_class }}</div>
+          {% for error in register_form.sub_class.errors %}
             <p class="mt-1 text-xs text-rose-600">{{ error }}</p>
           {% endfor %}
         </div>

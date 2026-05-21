@@ -9,7 +9,7 @@ from .models import Attendance, Children
 
 
 def _build_child_list_context():
-    children_list = Children.objects.all()
+    children_list = Children.objects.select_related("nursery_class", "sub_class", "facility").all()
     today = timezone.localdate()
     attendance_today = (
         Attendance.objects.filter(date=today)
@@ -27,7 +27,9 @@ def _build_child_list_context():
 
 def top_view(request):
     today = timezone.now().date()
-    absent_children = Attendance.objects.filter(date=today, attendance_status=3).select_related("child")
+    absent_children = Attendance.objects.filter(date=today, attendance_status=3).select_related(
+        "child__nursery_class"
+    )
     return render(
         request,
         "nursery/top.html",
@@ -61,7 +63,9 @@ def child_register_view(request):
 
 def absent_list_partial(request):
     today = timezone.now().date()
-    absent_children = Attendance.objects.filter(date=today, attendance_status=3).select_related("child")
+    absent_children = Attendance.objects.filter(date=today, attendance_status=3).select_related(
+        "child__nursery_class"
+    )
     return render(
         request,
         "nursery/partials/absent_list_partial.html",

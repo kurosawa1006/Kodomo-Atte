@@ -3,6 +3,8 @@ from django.contrib import admin
 from .models import (
     Attendance,
     Children,
+    Class,
+    SubClass,
     Facility,
     Parent,
     ParentChildRelationship,
@@ -19,18 +21,32 @@ class ChildrenAdmin(admin.ModelAdmin):
         "birthday",
         "gender",
         "facility",
-        "class_id",
-        "sub_class_id",
+        "nursery_class",
+        "sub_class",
     )
-    list_filter = ("gender", "class_id", "facility")
-    search_fields = ("name", "kana", "class_id")
+    list_filter = ("gender", "nursery_class", "sub_class", "facility")
+    search_fields = ("name", "kana", "nursery_class__name", "sub_class__name")
 
 
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):
     list_display = ("date", "child", "attendance_status", "reason")
     list_filter = ("date", "attendance_status")
-    search_fields = ("child__name", "child__kana", "child__class_id", "reason")
+    search_fields = ("child__name", "child__kana", "child__nursery_class__name", "reason")
+
+
+@admin.register(Class)
+class ClassAdmin(admin.ModelAdmin):
+    list_display = ("id", "facility", "name", "description", "is_deleted", "created_at", "updated_at")
+    list_filter = ("facility", "is_deleted")
+    search_fields = ("name", "description", "facility__name")
+
+
+@admin.register(SubClass)
+class SubClassAdmin(admin.ModelAdmin):
+    list_display = ("id", "facility", "nursery_class", "name", "description", "is_deleted", "created_at", "updated_at")
+    list_filter = ("facility", "nursery_class", "is_deleted")
+    search_fields = ("name", "description", "facility__name", "nursery_class__name")
 
 
 @admin.register(Facility)
@@ -43,10 +59,11 @@ class FacilityAdmin(admin.ModelAdmin):
         "phone_number",
         "capacity",
         "is_active",
+        "is_deleted",
         "created_at",
         "updated_at",
     )
-    list_filter = ("is_active",)
+    list_filter = ("is_active", "is_deleted")
     search_fields = ("name", "postal_code", "address")
 
 
@@ -68,7 +85,8 @@ class ParentAdmin(admin.ModelAdmin):
 
 @admin.register(StaffRole)
 class StaffRoleAdmin(admin.ModelAdmin):
-    list_display = ("id", "name")
+    list_display = ("id", "name", "is_deleted", "created_at", "updated_at")
+    list_filter = ("is_deleted",)
     search_fields = ("id", "name")
 
 
