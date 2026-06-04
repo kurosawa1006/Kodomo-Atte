@@ -16,8 +16,10 @@ from .models import (
 @admin.register(Children)
 class ChildrenAdmin(admin.ModelAdmin):
     list_display = (
-        "name",
-        "kana",
+        "last_name",
+        "first_name",
+        "last_name_kana",
+        "first_name_kana",
         "birthday",
         "gender",
         "facility",
@@ -25,14 +27,28 @@ class ChildrenAdmin(admin.ModelAdmin):
         "sub_class",
     )
     list_filter = ("gender", "nursery_class", "sub_class", "facility")
-    search_fields = ("name", "kana", "nursery_class__name", "sub_class__name")
+    search_fields = (
+        "last_name",
+        "first_name",
+        "last_name_kana",
+        "first_name_kana",
+        "nursery_class__name",
+        "sub_class__name",
+    )
 
 
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):
     list_display = ("date", "child", "attendance_status", "reason")
     list_filter = ("date", "attendance_status")
-    search_fields = ("child__name", "child__kana", "child__nursery_class__name", "reason")
+    search_fields = (
+        "child__last_name",
+        "child__first_name",
+        "child__last_name_kana",
+        "child__first_name_kana",
+        "child__nursery_class__name",
+        "reason",
+    )
 
 
 @admin.register(Class)
@@ -97,8 +113,10 @@ class StaffAdmin(admin.ModelAdmin):
         "facility",
         "staff_number",
         "staff_role",
-        "name",
-        "kana",
+        "last_name",
+        "first_name",
+        "last_name_kana",
+        "first_name_kana",
         "phone_number",
         "postal_code",
         "address",
@@ -107,8 +125,10 @@ class StaffAdmin(admin.ModelAdmin):
     search_fields = (
         "id",
         "staff_number",
-        "name",
-        "kana",
+        "last_name",
+        "first_name",
+        "last_name_kana",
+        "first_name_kana",
         "phone_number",
         "postal_code",
         "address",
@@ -121,4 +141,12 @@ class StaffAdmin(admin.ModelAdmin):
 class ParentChildRelationshipAdmin(admin.ModelAdmin):
     list_display = ("parent", "child", "relationship_type", "is_main_contact", "created_at")
     list_filter = ("relationship_type", "is_main_contact", "created_at")
-    search_fields = ("parent__name", "parent__kana", "child__name", "child__kana", "relationship_type")
+    search_fields = (
+        "parent__name",
+        "parent__kana",
+        "child__last_name",
+        "child__first_name",
+        "child__last_name_kana",
+        "child__first_name_kana",
+        "relationship_type",
+    )

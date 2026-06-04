@@ -3,13 +3,20 @@ from django.forms import ModelForm
 
 from .models import Children, Class, Facility, SubClass
 
+INPUT_CLASS = (
+    "w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm shadow-sm "
+    "focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+)
+
 
 class ChildRegisterForm(ModelForm):
     class Meta:
         model = Children
         fields = [
-            "name",
-            "kana",
+            "last_name",
+            "first_name",
+            "last_name_kana",
+            "first_name_kana",
             "birthday",
             "gender",
             "facility",
@@ -17,42 +24,15 @@ class ChildRegisterForm(ModelForm):
             "sub_class",
         ]
         widgets = {
-            "name": forms.TextInput(
-                attrs={
-                    "class": "w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm shadow-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400",
-                }
-            ),
-            "kana": forms.TextInput(
-                attrs={
-                    "class": "w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm shadow-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400",
-                }
-            ),
-            "birthday": forms.DateInput(
-                attrs={
-                    "type": "date",
-                    "class": "w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm shadow-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400",
-                }
-            ),
-            "gender": forms.Select(
-                attrs={
-                    "class": "w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm shadow-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400",
-                }
-            ),
-            "facility": forms.Select(
-                attrs={
-                    "class": "w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm shadow-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400",
-                }
-            ),
-            "nursery_class": forms.Select(
-                attrs={
-                    "class": "w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm shadow-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400",
-                }
-            ),
-            "sub_class": forms.Select(
-                attrs={
-                    "class": "w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm shadow-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400",
-                }
-            ),
+            "last_name": forms.TextInput(attrs={"class": INPUT_CLASS}),
+            "first_name": forms.TextInput(attrs={"class": INPUT_CLASS}),
+            "last_name_kana": forms.TextInput(attrs={"class": INPUT_CLASS}),
+            "first_name_kana": forms.TextInput(attrs={"class": INPUT_CLASS}),
+            "birthday": forms.DateInput(attrs={"type": "date", "class": INPUT_CLASS}),
+            "gender": forms.Select(attrs={"class": INPUT_CLASS}),
+            "facility": forms.Select(attrs={"class": INPUT_CLASS}),
+            "nursery_class": forms.Select(attrs={"class": INPUT_CLASS}),
+            "sub_class": forms.Select(attrs={"class": INPUT_CLASS}),
         }
 
     def __init__(self, *args, **kwargs):

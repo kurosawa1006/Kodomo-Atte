@@ -11,14 +11,14 @@
       <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
         <div class="min-w-0">
           <p class="truncate text-sm font-semibold text-slate-900">
-            {{ att.child.name }}
+            {{ att.child.full_name }}
             <span class="ml-2 text-xs font-medium text-slate-500">（{{ att.child.nursery_class|default:"-" }}）</span>
           </p>
           <p class="mt-1 text-xs text-slate-500">
             {% if att.reason %}
               理由：{{ att.reason }}
             {% else %}
-              かな：{{ att.child.kana }}
+              かな：{{ att.child.full_kana }}
             {% endif %}
           </p>
         </div>

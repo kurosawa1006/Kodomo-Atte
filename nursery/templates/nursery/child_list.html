@@ -40,7 +40,7 @@
           >
             <div class="min-w-0">
               <p class="truncate text-sm font-semibold text-slate-900">
-                {{ child.name }}
+                {{ child.full_name }}
                 <span class="ml-2 text-xs font-medium text-slate-500">（{{ child.nursery_class|default:"-" }}）</span>
                 {% if att and att.reason %}
                   <span class="ml-2 text-xs font-medium text-slate-500">
@@ -55,7 +55,7 @@
                 {% endif %}
               </p>
               <p class="mt-1 text-xs text-slate-500">
-                かな：{{ child.kana }} / 誕生日：{{ child.birthday|date:"Y-m-d" }} / 性別：{{ child.get_gender_display }}
+                かな：{{ child.full_kana }} / 誕生日：{{ child.birthday|date:"Y-m-d" }} / 性別：{{ child.get_gender_display }}
               </p>
             </div>
 
@@ -185,11 +185,11 @@
         <div class="flex items-center gap-3">
           <label
             class="w-20 flex-shrink-0 text-sm font-semibold text-slate-700 whitespace-nowrap"
-            for="{{ register_form.name.id_for_label }}"
-            >氏名</label
+            for="{{ register_form.last_name.id_for_label }}"
+            >姓</label
           >
-          <div class="flex-1">{{ register_form.name }}</div>
-          {% for error in register_form.name.errors %}
+          <div class="flex-1">{{ register_form.last_name }}</div>
+          {% for error in register_form.last_name.errors %}
             <p class="mt-1 text-xs text-rose-600">{{ error }}</p>
           {% endfor %}
         </div>
@@ -197,11 +197,35 @@
         <div class="flex items-center gap-3">
           <label
             class="w-20 flex-shrink-0 text-sm font-semibold text-slate-700 whitespace-nowrap"
-            for="{{ register_form.kana.id_for_label }}"
-            >かな</label
+            for="{{ register_form.first_name.id_for_label }}"
+            >名</label
           >
-          <div class="flex-1">{{ register_form.kana }}</div>
-          {% for error in register_form.kana.errors %}
+          <div class="flex-1">{{ register_form.first_name }}</div>
+          {% for error in register_form.first_name.errors %}
+            <p class="mt-1 text-xs text-rose-600">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label
+            class="w-20 flex-shrink-0 text-sm font-semibold text-slate-700 whitespace-nowrap"
+            for="{{ register_form.last_name_kana.id_for_label }}"
+            >姓（かな）</label
+          >
+          <div class="flex-1">{{ register_form.last_name_kana }}</div>
+          {% for error in register_form.last_name_kana.errors %}
+            <p class="mt-1 text-xs text-rose-600">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label
+            class="w-20 flex-shrink-0 text-sm font-semibold text-slate-700 whitespace-nowrap"
+            for="{{ register_form.first_name_kana.id_for_label }}"
+            >名（かな）</label
+          >
+          <div class="flex-1">{{ register_form.first_name_kana }}</div>
+          {% for error in register_form.first_name_kana.errors %}
             <p class="mt-1 text-xs text-rose-600">{{ error }}</p>
           {% endfor %}
         </div>

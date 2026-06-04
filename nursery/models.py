@@ -139,8 +139,10 @@ class Staff(models.Model):
         null=True,
         blank=True,
     )
-    name = models.CharField("氏名", max_length=100)
-    kana = models.CharField("かな", max_length=100)
+    last_name = models.CharField("姓", max_length=50)
+    first_name = models.CharField("名", max_length=50)
+    last_name_kana = models.CharField("姓（かな）", max_length=50)
+    first_name_kana = models.CharField("名（かな）", max_length=50)
     phone_number = models.CharField("電話番号", max_length=30)
     postal_code = models.CharField("郵便番号", max_length=20)
     address = models.CharField("住所", max_length=255)
@@ -153,10 +155,18 @@ class Staff(models.Model):
     class Meta:
         verbose_name = "スタッフ"
         verbose_name_plural = "スタッフ"
-        ordering = ["facility_id", "kana", "name", "id"]
+        ordering = ["facility_id", "last_name_kana", "first_name_kana", "last_name", "first_name"]
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.last_name} {self.first_name}".strip()
+
+    @property
+    def full_kana(self) -> str:
+        return f"{self.last_name_kana} {self.first_name_kana}".strip()
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.staff_number})"
+        return f"{self.full_name} ({self.staff_number})"
 
 
 class Children(models.Model):
@@ -165,8 +175,10 @@ class Children(models.Model):
         FEMALE = "female", "女"
         OTHER = "other", "その他"
 
-    name = models.CharField("氏名", max_length=100)
-    kana = models.CharField("かな", max_length=100)
+    last_name = models.CharField("姓", max_length=50)
+    first_name = models.CharField("名", max_length=50)
+    last_name_kana = models.CharField("姓（かな）", max_length=50)
+    first_name_kana = models.CharField("名（かな）", max_length=50)
     birthday = models.DateField("誕生日")
     gender = models.CharField("性別", max_length=10, choices=Gender.choices)
     facility = models.ForeignKey(
@@ -204,11 +216,19 @@ class Children(models.Model):
     class Meta:
         verbose_name = "園児"
         verbose_name_plural = "園児"
-        ordering = ["nursery_class_id", "kana", "name"]
+        ordering = ["nursery_class_id", "last_name_kana", "first_name_kana", "last_name", "first_name"]
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.last_name} {self.first_name}".strip()
+
+    @property
+    def full_kana(self) -> str:
+        return f"{self.last_name_kana} {self.first_name_kana}".strip()
 
     def __str__(self) -> str:
         class_label = self.nursery_class.name if self.nursery_class_id else "-"
-        return f"{self.name} ({class_label})"
+        return f"{self.full_name} ({class_label})"
 
 
 class Attendance(models.Model):
@@ -237,7 +257,7 @@ class Attendance(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["child", "date"], name="uniq_attendance_child_date"),
         ]
-        ordering = ["-date", "child__nursery_class_id", "child__kana", "child__name"]
+        ordering = ["-date", "child__nursery_class_id", "child__last_name_kana", "child__first_name_kana", "child__last_name", "child__first_name"]
 
 
 class ParentChildRelationship(models.Model):
@@ -263,4 +283,4 @@ class ParentChildRelationship(models.Model):
         verbose_name = "保護者-園児リレーション"
         verbose_name_plural = "保護者-園児リレーション"
         db_table = "parent_child_relationships"
-        ordering = ["-created_at", "child__kana", "parent__kana"]
+        ordering = ["-created_at", "child__last_name_kana", "child__first_name_kana", "parent__kana"]
