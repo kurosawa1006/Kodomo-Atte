@@ -20,4 +20,9 @@ urlpatterns = [
         views.toggle_attendance,
         name="toggle_attendance",
     ),
+    path(
+        "children/<int:child_id>/detail/",
+        views.child_detail_partial,
+        name="child_detail",
+    ),
 ]

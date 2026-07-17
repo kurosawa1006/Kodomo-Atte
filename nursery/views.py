@@ -5,11 +5,24 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from .forms import ChildRegisterForm
-from .models import Attendance, Children
+from .models import Attendance, Children, Class
 
 
-def _build_child_list_context():
+def _parse_class_filter(request):
+    class_param = request.GET.get("class") or request.POST.get("class_filter")
+    if not class_param or class_param == "all":
+        return None
+    try:
+        return int(class_param)
+    except (TypeError, ValueError):
+        return None
+
+
+def _build_child_list_context(class_id=None):
     children_list = Children.objects.select_related("nursery_class", "sub_class", "facility").all()
+    if class_id is not None:
+        children_list = children_list.filter(nursery_class_id=class_id)
+
     today = timezone.localdate()
     attendance_today = (
         Attendance.objects.filter(date=today)
@@ -21,6 +34,8 @@ def _build_child_list_context():
 
     return {
         "rows": rows,
+        "classes": Class.objects.filter(is_deleted=False).order_by("id"),
+        "selected_class_id": class_id,
         "today": today,
     }
 
@@ -38,7 +53,7 @@ def top_view(request):
 
 
 def child_list_view(request):
-    context = _build_child_list_context()
+    context = _build_child_list_context(class_id=_parse_class_filter(request))
     context["register_form"] = ChildRegisterForm()
     return render(
         request,
@@ -52,11 +67,14 @@ def child_register_view(request):
         form = ChildRegisterForm(request.POST)
         if form.is_valid():
             form.save()
+            class_id = _parse_class_filter(request)
+            if class_id is not None:
+                return redirect(f"{reverse('child_list')}?class={class_id}")
             return redirect(reverse("child_list"))
     else:
         form = ChildRegisterForm()
 
-    context = _build_child_list_context()
+    context = _build_child_list_context(class_id=_parse_class_filter(request))
     context["register_form"] = form
     return render(request, "nursery/child_list.html", context)
 
@@ -70,6 +88,30 @@ def absent_list_partial(request):
         request,
         "nursery/partials/absent_list_partial.html",
         {"absent_children": absent_children},
+    )
+
+
+def child_detail_partial(request, child_id: int):
+    child = get_object_or_404(
+        Children.objects.select_related("facility", "nursery_class", "sub_class"),
+        pk=child_id,
+    )
+    today = timezone.localdate()
+    attendance = Attendance.objects.filter(child=child, date=today).first()
+    parent_relationships = (
+        child.parent_relationships.filter(is_deleted=False)
+        .select_related("parent")
+        .order_by("-is_main_contact", "relationship_type", "parent__kana")
+    )
+    return render(
+        request,
+        "nursery/partials/child_detail_partial.html",
+        {
+            "child": child,
+            "attendance": attendance,
+            "today": today,
+            "parent_relationships": parent_relationships,
+        },
     )
 
 
@@ -109,4 +151,9 @@ def toggle_attendance(request, child_id: int):
         next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
     ):
         return redirect(next_url)
+    referer = request.META.get("HTTP_REFERER")
+    if referer and url_has_allowed_host_and_scheme(
+        referer, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return redirect(referer)
     return redirect(reverse("child_list"))

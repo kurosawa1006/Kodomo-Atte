@@ -1,0 +1,99 @@
+<div class="absolute inset-0 bg-slate-900/40" data-close-detail="true"></div>
+<div
+  class="relative mx-auto mt-12 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-900/5"
+>
+  <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+    <h3 id="child-detail-modal-title" class="text-base font-semibold text-slate-800">
+      園児詳細
+    </h3>
+    <button
+      type="button"
+      class="rounded-xl p-2 text-slate-500 hover:bg-slate-100"
+      data-close-detail="true"
+      aria-label="閉じる"
+    >
+      ✕
+    </button>
+  </div>
+
+  <div class="max-h-[70vh] space-y-6 overflow-y-auto px-6 py-5">
+    <section>
+      <h4 class="mb-3 text-xs font-semibold uppercase tracking-wide text-sky-500">基本情報</h4>
+      <dl class="grid grid-cols-[5.5rem_1fr] gap-x-3 gap-y-2.5 text-sm">
+        <dt class="font-semibold text-slate-500">氏名</dt>
+        <dd class="font-semibold text-slate-900">{{ child.full_name }}</dd>
+        <dt class="font-semibold text-slate-500">かな</dt>
+        <dd class="text-slate-800">{{ child.full_kana }}</dd>
+        <dt class="font-semibold text-slate-500">誕生日</dt>
+        <dd class="text-slate-800">{{ child.birthday|date:"Y年n月j日" }}</dd>
+        <dt class="font-semibold text-slate-500">性別</dt>
+        <dd class="text-slate-800">{{ child.get_gender_display }}</dd>
+        <dt class="font-semibold text-slate-500">施設</dt>
+        <dd class="text-slate-800">{{ child.facility|default:"-" }}</dd>
+        <dt class="font-semibold text-slate-500">クラス</dt>
+        <dd class="text-slate-800">{{ child.nursery_class|default:"-" }}</dd>
+        <dt class="font-semibold text-slate-500">サブクラス</dt>
+        <dd class="text-slate-800">{{ child.sub_class|default:"-" }}</dd>
+        <dt class="font-semibold text-slate-500">開始日</dt>
+        <dd class="text-slate-800">
+          {% if child.start_date %}{{ child.start_date|date:"Y-m-d" }}{% else %}-{% endif %}
+        </dd>
+        <dt class="font-semibold text-slate-500">終了日</dt>
+        <dd class="text-slate-800">
+          {% if child.end_date %}{{ child.end_date|date:"Y-m-d" }}{% else %}-{% endif %}
+        </dd>
+      </dl>
+    </section>
+
+    <section>
+      <h4 class="mb-3 text-xs font-semibold uppercase tracking-wide text-sky-500">
+        本日の出欠（{{ today|date:"Y-m-d" }}）
+      </h4>
+      {% if attendance %}
+        <p class="text-sm text-slate-800">
+          {% if attendance.attendance_status == 1 %}
+            <span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">遅刻</span>
+          {% elif attendance.attendance_status == 2 %}
+            <span class="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-semibold text-violet-700">早退</span>
+          {% elif attendance.attendance_status == 3 %}
+            <span class="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-700">欠席</span>
+          {% else %}
+            <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">出席</span>
+          {% endif %}
+          {% if attendance.reason %}
+            <span class="ml-2 text-slate-600">理由：{{ attendance.reason }}</span>
+          {% endif %}
+        </p>
+      {% else %}
+        <p class="text-sm text-slate-800">
+          <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">出席</span>
+        </p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h4 class="mb-3 text-xs font-semibold uppercase tracking-wide text-sky-500">保護者</h4>
+      {% if parent_relationships %}
+        <ul class="space-y-3">
+          {% for rel in parent_relationships %}
+            <li class="rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-3">
+              <p class="text-sm font-semibold text-slate-900">
+                {{ rel.parent.name }}
+                <span class="ml-2 text-xs font-medium text-slate-500">（{{ rel.relationship_type }}）</span>
+                {% if rel.is_main_contact %}
+                  <span class="ml-1 rounded-full bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-700">主連絡先</span>
+                {% endif %}
+              </p>
+              <p class="mt-1 text-xs text-slate-500">かな：{{ rel.parent.kana }}</p>
+              <p class="mt-1 text-xs text-slate-500">電話：{{ rel.parent.phone_number }}</p>
+              <p class="mt-1 text-xs text-slate-500">緊急連絡先：{{ rel.parent.emergency_contact }}</p>
+              <p class="mt-1 text-xs text-slate-500">住所：〒{{ rel.parent.postal_code }} {{ rel.parent.address }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-slate-500">登録されている保護者はいません</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
