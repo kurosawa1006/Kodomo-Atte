@@ -72,6 +72,41 @@
     </section>
 
     <section>
+      <h4 class="mb-3 text-xs font-semibold uppercase tracking-wide text-sky-500">兄弟児</h4>
+      {% if siblings %}
+        <ul class="space-y-2">
+          {% for sibling in siblings %}
+            <li class="rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-3">
+              <p class="text-sm font-semibold text-slate-900">
+                <button
+                  type="button"
+                  class="text-left text-sky-700 underline decoration-sky-200 underline-offset-2 transition hover:text-sky-900 hover:decoration-sky-400"
+                  hx-get="{% url 'child_detail' sibling.id %}"
+                  hx-target="#child-detail-modal-content"
+                  hx-swap="innerHTML"
+                >
+                  {{ sibling.full_name }}
+                </button>
+              </p>
+              <p class="mt-1 text-xs text-slate-500">
+                かな：{{ sibling.full_kana }}
+              </p>
+              <p class="mt-1 text-xs text-slate-500">
+                クラス：{{ sibling.nursery_class|default:"-" }}
+                {% if sibling.sub_class %} / {{ sibling.sub_class }}{% endif %}
+              </p>
+              <p class="mt-1 text-xs text-slate-500">
+                誕生日：{{ sibling.birthday|date:"Y年n月j日" }} / 性別：{{ sibling.get_gender_display }}
+              </p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-slate-500">兄弟児はいません</p>
+      {% endif %}
+    </section>
+
+    <section>
       <h4 class="mb-3 text-xs font-semibold uppercase tracking-wide text-sky-500">保護者</h4>
       {% if parent_relationships %}
         <ul class="space-y-3">

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0ea5e9" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>{% block title %}コドモアッテ{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                sky: "#0ea5e9",
+                mint: "#34d399",
+                coral: "#fb7185",
+              },
+            },
+            fontFamily: {
+              sans: [
+                "Hiragino Sans",
+                "Hiragino Kaku Gothic ProN",
+                "Noto Sans JP",
+                "ui-sans-serif",
+                "system-ui",
+                "sans-serif",
+              ],
+            },
+            minHeight: {
+              tap: "48px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html,
+      body {
+        overflow-x: hidden;
+        max-width: 100vw;
+      }
+      .safe-bottom {
+        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+      }
+      .bottom-nav {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-800 antialiased font-sans">
+    <div class="mx-auto flex min-h-screen w-full max-w-md flex-col">
+      <header class="sticky top-0 z-40 border-b border-slate-100 bg-white/95 px-4 py-3 backdrop-blur">
+        {% block header %}
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-100">
+              <span class="text-sm font-bold text-sky-600">KA</span>
+            </div>
+            <div class="min-w-0">
+              <p class="truncate text-xs font-semibold tracking-wide text-sky-500">
+                {% block app_label %}Kodomo-Atte{% endblock %}
+              </p>
+              <p class="truncate text-sm font-bold text-slate-800">
+                {% block page_title %}ダッシュボード{% endblock %}
+              </p>
+            </div>
+          </div>
+        {% endblock %}
+      </header>
+
+      <main class="safe-bottom flex-1 px-4 pt-4">
+        {% if messages %}
+          <div class="mb-4 space-y-2">
+            {% for message in messages %}
+              <div class="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+      </main>
+
+      {% block bottom_nav %}{% endblock %}
+    </div>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

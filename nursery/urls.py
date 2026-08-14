@@ -25,4 +25,16 @@ urlpatterns = [
         views.child_detail_partial,
         name="child_detail",
     ),
+    path("staff/dashboard/", views.staff_dashboard_view, name="staff_dashboard"),
+    path(
+        "staff/attendance/<int:attendance_id>/confirm/",
+        views.staff_confirm_attendance,
+        name="staff_confirm_attendance",
+    ),
+    path("parent/dashboard/", views.parent_dashboard_view, name="parent_dashboard"),
+    path(
+        "parent/report-attendance/",
+        views.parent_report_attendance,
+        name="parent_report_attendance",
+    ),
 ]

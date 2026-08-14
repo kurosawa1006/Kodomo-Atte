@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}スタッフダッシュボード | コドモアッテ{% endblock %}
+{% block app_label %}Staff{% endblock %}
+{% block page_title %}本日のダッシュボード{% endblock %}
+
+{% block content %}
+  <section class="mb-5">
+    <p class="mb-2 text-xs font-semibold text-slate-500">{{ today|date:"Y年n月j日（D）" }}の出欠</p>
+    <div class="grid grid-cols-3 gap-2">
+      <div class="rounded-2xl bg-emerald-50 px-3 py-3 text-center">
+        <p class="text-[11px] font-semibold text-emerald-700">登園</p>
+        <p class="mt-1 text-lg font-bold text-emerald-800">{{ present_count }}/{{ total_children }}</p>
+      </div>
+      <div class="rounded-2xl bg-rose-50 px-3 py-3 text-center">
+        <p class="text-[11px] font-semibold text-rose-700">欠席</p>
+        <p class="mt-1 text-lg font-bold text-rose-800">{{ absent_count }}</p>
+      </div>
+      <div class="rounded-2xl bg-amber-50 px-3 py-3 text-center">
+        <p class="text-[11px] font-semibold text-amber-700">遅刻</p>
+        <p class="mt-1 text-lg font-bold text-amber-800">{{ late_count }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <div class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+      <a
+        href="{% url 'staff_dashboard' %}"
+        class="inline-flex min-h-tap shrink-0 items-center rounded-full px-4 text-sm font-semibold
+        {% if selected_class_id is None %}bg-sky-500 text-white{% else %}bg-white text-slate-600 ring-1 ring-slate-200{% endif %}"
+      >全体</a>
+      {% for item in class_tabs %}
+        <a
+          href="{% url 'staff_dashboard' %}?class={{ item.id }}"
+          class="inline-flex min-h-tap shrink-0 items-center rounded-full px-4 text-sm font-semibold
+          {% if selected_class_id == item.id %}bg-sky-500 text-white{% else %}bg-white text-slate-600 ring-1 ring-slate-200{% endif %}"
+        >{{ item.age_label }}</a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section>
+    <div class="mb-3 flex items-center justify-between">
+      <h2 class="text-base font-bold text-slate-800">未確認の連絡</h2>
+      <span class="rounded-full bg-sky-100 px-3 py-1 text-xs font-bold text-sky-700">
+        {{ unconfirmed_list|length }}件
+      </span>
+    </div>
+
+    {% if unconfirmed_list %}
+      <ul class="space-y-3">
+        {% for att in unconfirmed_list %}
+          <li class="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="truncate text-base font-bold text-slate-900">{{ att.child.full_name }}</p>
+                <p class="mt-1 text-xs text-slate-500">
+                  {{ att.child.nursery_class|default:"-" }}
+                  {% if att.child.sub_class %} / {{ att.child.sub_class }}{% endif %}
+                </p>
+              </div>
+              {% if att.attendance_status == 1 %}
+                <span class="shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">遅刻</span>
+              {% elif att.attendance_status == 2 %}
+                <span class="shrink-0 rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-700">早退</span>
+              {% else %}
+                <span class="shrink-0 rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700">欠席</span>
+              {% endif %}
+            </div>
+            {% if att.reason %}
+              <p class="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                理由：{{ att.reason }}
+              </p>
+            {% endif %}
+            <form method="post" action="{% url 'staff_confirm_attendance' att.id %}" class="mt-4">
+              {% csrf_token %}
+              {% if selected_class_id %}
+                <input type="hidden" name="class_filter" value="{{ selected_class_id }}" />
+              {% endif %}
+              <button
+                type="submit"
+                class="flex min-h-tap w-full items-center justify-center rounded-2xl bg-sky-500 px-4 py-3 text-sm font-bold text-white shadow-sm active:bg-sky-600"
+              >
+                確認済にする
+              </button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="rounded-3xl bg-white px-4 py-10 text-center shadow-sm ring-1 ring-slate-100">
+        <p class="text-sm font-semibold text-slate-700">未確認の連絡はありません</p>
+        <p class="mt-1 text-xs text-slate-500">新しい欠席・遅刻連絡があるとここに表示されます</p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}
+
+{% block bottom_nav %}
+  <nav
+    class="bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur"
+    aria-label="スタッフメニュー"
+  >
+    <div class="mx-auto grid max-w-md grid-cols-4">
+      <a href="{% url 'staff_dashboard' %}" class="flex min-h-tap flex-col items-center justify-center gap-0.5 text-sky-600">
+        <span class="text-lg leading-none">🏠</span>
+        <span class="text-[11px] font-semibold">ホーム</span>
+      </a>
+      <a href="{% url 'child_list' %}" class="flex min-h-tap flex-col items-center justify-center gap-0.5 text-slate-500">
+        <span class="text-lg leading-none">📝</span>
+        <span class="text-[11px] font-semibold">出欠一覧</span>
+      </a>
+      <a href="#" class="flex min-h-tap flex-col items-center justify-center gap-0.5 text-slate-400">
+        <span class="text-lg leading-none">✉️</span>
+        <span class="text-[11px] font-semibold">連絡帳</span>
+      </a>
+      <a href="#" class="flex min-h-tap flex-col items-center justify-center gap-0.5 text-slate-400">
+        <span class="text-lg leading-none">👤</span>
+        <span class="text-[11px] font-semibold">設定</span>
+      </a>
+    </div>
+  </nav>
+{% endblock %}

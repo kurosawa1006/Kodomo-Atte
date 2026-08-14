@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}保護者ダッシュボード | コドモアッテ{% endblock %}
+{% block app_label %}Parent{% endblock %}
+{% block page_title %}保護者ホーム{% endblock %}
+
+{% block content %}
+  <section class="mb-5 rounded-3xl bg-gradient-to-br from-sky-500 to-sky-600 p-5 text-white shadow-sm">
+    <p class="text-xs font-semibold text-sky-100">お子さま</p>
+    {% if child %}
+      <p class="mt-1 text-2xl font-bold tracking-tight">{{ child.full_name }}</p>
+      <p class="mt-2 text-sm text-sky-50">
+        {{ child.nursery_class|default:"クラス未設定" }}
+        {% if child.sub_class %}・{{ child.sub_class }}{% endif %}
+      </p>
+      <p class="mt-1 text-xs text-sky-100">{{ today|date:"Y年n月j日（D）" }}</p>
+    {% else %}
+      <p class="mt-2 text-sm text-sky-50">お子さまの登録がありません</p>
+    {% endif %}
+  </section>
+
+  {% if child %}
+    <section class="mb-5">
+      {% if today_attendance %}
+        <div class="mb-3 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+          <p class="text-xs font-semibold text-slate-500">本日の連絡状況</p>
+          <p class="mt-2 text-base font-bold text-slate-900">
+            {% if today_attendance.attendance_status == 1 %}遅刻で連絡済み
+            {% elif today_attendance.attendance_status == 2 %}早退で連絡済み
+            {% elif today_attendance.attendance_status == 3 %}欠席で連絡済み
+            {% else %}連絡済み{% endif %}
+          </p>
+          {% if today_attendance.reason %}
+            <p class="mt-1 text-sm text-slate-600">理由：{{ today_attendance.reason }}</p>
+          {% endif %}
+          {% if today_attendance.is_confirmed %}
+            <p class="mt-2 text-xs font-semibold text-emerald-600">園側で確認済みです</p>
+          {% else %}
+            <p class="mt-2 text-xs font-semibold text-amber-600">園側の確認待ちです</p>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <button
+        id="open-report-modal"
+        type="button"
+        class="flex min-h-[64px] w-full items-center justify-center gap-2 rounded-3xl bg-rose-500 px-4 py-4 text-base font-bold text-white shadow-md active:bg-rose-600"
+      >
+        今日の欠席・遅刻連絡をする
+      </button>
+      <p class="mt-2 text-center text-xs text-slate-500">タップして10秒で連絡できます</p>
+    </section>
+  {% endif %}
+
+  <section>
+    <h2 class="mb-3 text-base font-bold text-slate-800">園からのお便り</h2>
+    {% if notices %}
+      <ul class="space-y-3">
+        {% for notice in notices %}
+          <li class="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-sm font-bold text-slate-900">{{ notice.title }}</p>
+              <span class="shrink-0 text-[11px] font-medium text-slate-400">{{ notice.date }}</span>
+            </div>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ notice.body }}</p>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="rounded-3xl bg-white px-4 py-8 text-center shadow-sm ring-1 ring-slate-100">
+        <p class="text-sm text-slate-500">本日のお便りはありません</p>
+      </div>
+    {% endif %}
+  </section>
+
+  {% if child %}
+    <div id="report-modal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true">
+      <div class="absolute inset-0 bg-slate-900/40" data-close-report="true"></div>
+      <div class="absolute inset-x-0 bottom-0 mx-auto max-w-md rounded-t-3xl bg-white px-4 pb-8 pt-5 shadow-xl">
+        <div class="mb-4 flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-900">欠席・遅刻連絡</h3>
+          <button type="button" class="min-h-tap min-w-[48px] rounded-xl text-slate-500" data-close-report="true" aria-label="閉じる">✕</button>
+        </div>
+        <form method="post" action="{% url 'parent_report_attendance' %}" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="parent_id" value="{{ parent.id }}" />
+          <input type="hidden" name="child_id" value="{{ child.id }}" />
+
+          <div>
+            <p class="mb-2 text-xs font-semibold text-slate-500">連絡内容</p>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex min-h-tap cursor-pointer items-center justify-center rounded-2xl bg-rose-50 px-3 py-3 text-sm font-bold text-rose-700 ring-2 ring-transparent has-[:checked]:ring-rose-400">
+                <input type="radio" name="attendance_status" value="absent" class="sr-only" checked />
+                欠席
+              </label>
+              <label class="flex min-h-tap cursor-pointer items-center justify-center rounded-2xl bg-amber-50 px-3 py-3 text-sm font-bold text-amber-800 ring-2 ring-transparent has-[:checked]:ring-amber-400">
+                <input type="radio" name="attendance_status" value="late" class="sr-only" />
+                遅刻
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label for="reason" class="mb-2 block text-xs font-semibold text-slate-500">理由</label>
+            <input
+              id="reason"
+              name="reason"
+              type="text"
+              required
+              placeholder="例：発熱"
+              class="min-h-tap w-full rounded-2xl border border-slate-200 px-4 text-sm outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="flex min-h-[56px] w-full items-center justify-center rounded-2xl bg-sky-500 px-4 py-3 text-sm font-bold text-white active:bg-sky-600"
+          >
+            送信する
+          </button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block bottom_nav %}
+  <nav
+    class="bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur"
+    aria-label="保護者メニュー"
+  >
+    <div class="mx-auto grid max-w-md grid-cols-4">
+      <a href="{% url 'parent_dashboard' %}{% if parent %}?parent={{ parent.id }}{% endif %}" class="flex min-h-tap flex-col items-center justify-center gap-0.5 text-sky-600">
+        <span class="text-lg leading-none">🏠</span>
+        <span class="text-[11px] font-semibold">ホーム</span>
+      </a>
+      <button type="button" id="nav-open-report" class="flex min-h-tap flex-col items-center justify-center gap-0.5 text-slate-500">
+        <span class="text-lg leading-none">📝</span>
+        <span class="text-[11px] font-semibold">連絡</span>
+      </button>
+      <a href="#notices" class="flex min-h-tap flex-col items-center justify-center gap-0.5 text-slate-500">
+        <span class="text-lg leading-none">✉️</span>
+        <span class="text-[11px] font-semibold">お便り</span>
+      </a>
+      <a href="#" class="flex min-h-tap flex-col items-center justify-center gap-0.5 text-slate-400">
+        <span class="text-lg leading-none">👤</span>
+        <span class="text-[11px] font-semibold">設定</span>
+      </a>
+    </div>
+  </nav>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (function () {
+      const modal = document.getElementById("report-modal");
+      if (!modal) return;
+      const openBtns = [
+        document.getElementById("open-report-modal"),
+        document.getElementById("nav-open-report"),
+      ].filter(Boolean);
+      const open = function () {
+        modal.classList.remove("hidden");
+      };
+      const close = function () {
+        modal.classList.add("hidden");
+      };
+      openBtns.forEach(function (btn) {
+        btn.addEventListener("click", open);
+      });
+      modal.querySelectorAll('[data-close-report="true"]').forEach(function (el) {
+        el.addEventListener("click", close);
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !modal.classList.contains("hidden")) close();
+      });
+    })();
+  </script>
+{% endblock %}
