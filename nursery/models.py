@@ -247,6 +247,8 @@ class Attendance(models.Model):
         blank=True,
     )
     reason = models.CharField("欠席理由", max_length=255, blank=True, default="")
+    scheduled_arrival_time = models.TimeField("予定登園時間", null=True, blank=True)
+    note = models.TextField("特記事項", blank=True, default="")
     is_confirmed = models.BooleanField("確認済", default=False)
     is_deleted = models.BooleanField("削除フラグ", default=False)
     created_at = models.DateTimeField("作成日時", auto_now_add=True)
